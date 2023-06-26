@@ -133,8 +133,6 @@ export default function Home() {
   
 
   // Сохраняем данные в state.
-  // !!! В принципе, можно сразу сохранять массив точек и чуть изменить код ниже.
-  // Будет время, переделаю.
   const saveData = async (res: ItemProps[]) => setData({...data, [`${chartType}`]: res})
 
   
