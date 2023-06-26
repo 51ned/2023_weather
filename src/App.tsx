@@ -149,6 +149,7 @@ export default function Home() {
       const dataLastDate = new Date(source[source.length - 1].t)
       let userLastDate = new Date(`${lastYear}-12-31`)
 
+
       if (firstYear === lastYear) {
         userLastDate = new Date(`${firstYear}-12-31`)
       }
