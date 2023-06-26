@@ -149,8 +149,9 @@ export default function Home() {
       const dataLastDate = new Date(source[source.length - 1].t)
       let userLastDate = new Date(`${lastYear}-12-31`)
 
-      // Последний год не может быть больше второго (см. 'src/components/weather-app').
+      // Последний год не может быть больше первого (см. 'src/components/weather-app').
       // На каком-то сайте видел такую фишку, на скорую руку сделал.
+      // Ну а если они равны:
       if (firstYear === lastYear) {
         userLastDate = new Date(`${firstYear}-12-31`)
       }
