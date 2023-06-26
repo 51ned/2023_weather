@@ -19,7 +19,7 @@ const LAST_YEAR = 2006
 // Я порезал локальный temperature.json: удалил начало и конец,
 // фрагменты различной длины из середины. Не повреждённый файл
 // сохранил на сервере одного из своих сайтов.
-const serverURL = import.meta.env.VITE_SERVER_URL
+// const serverURL = import.meta.env.VITE_SERVER_URL
 
 
 export default function Home() {
@@ -48,7 +48,7 @@ export default function Home() {
     // пустой файл json или его отсутствие приведёт нас сюда
     // и файл будет запрошен с удалённого сервера.
     catch {
-      res = await fetchData<ItemProps>(`${serverURL}/${chartType}.json`)
+      res = await fetchData<ItemProps>(`remote-server`)
       setIsDataLocal(false)
     }
 
@@ -98,7 +98,7 @@ export default function Home() {
       
       currDay = missedDaysNum
 
-      remData = await fetchData<ItemProps>(`${serverURL}/${chartType}.json`)
+      remData = await fetchData<ItemProps>(`remote-server`)
       locData.splice(0, 0, ...remData.slice(0, missedDaysNum))
     }
 
@@ -110,7 +110,7 @@ export default function Home() {
       const missedDaysNum = getMissedDaysNum(locCurrDay, locNextDay) - 1
     
       if (missedDaysNum > 0) {
-        remData ??= await fetchData<ItemProps>(`${serverURL}/${chartType}.json`)
+        remData ??= await fetchData<ItemProps>(`remote-server`)
         locData.splice(currDay, 0, ...remData.slice(currDay + 1, currDay + 1 + missedDaysNum))
 
         currDay += missedDaysNum
@@ -122,7 +122,7 @@ export default function Home() {
 
     // ...или конец.
     if (locLastDay !== remLastDay) {
-      remData ??= await fetchData<ItemProps>(`${serverURL}/${chartType}.json`)
+      remData ??= await fetchData<ItemProps>(`remote-server`)
       locData.push(...remData.slice(currDay + 1, remData.length))
     }
     
