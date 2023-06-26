@@ -48,7 +48,7 @@ export default function Home() {
     // пустой файл json или его отсутствие приведёт нас сюда
     // и файл будет запрошен с удалённого сервера.
     catch {
-      res = await fetchData<ItemProps>(`remote-server`)
+      res = await fetchData<ItemProps>('server')
       setIsDataLocal(false)
     }
 
@@ -63,6 +63,7 @@ export default function Home() {
     isDataLocal
       ? await formData(res).then(res => saveData(res))
       : saveData(res)
+      console.log(isDataLocal)
   }
 
 
@@ -98,7 +99,7 @@ export default function Home() {
       
       currDay = missedDaysNum
 
-      remData = await fetchData<ItemProps>(`remote-server`)
+      remData = await fetchData<ItemProps>('server')
       locData.splice(0, 0, ...remData.slice(0, missedDaysNum))
     }
 
@@ -110,7 +111,7 @@ export default function Home() {
       const missedDaysNum = getMissedDaysNum(locCurrDay, locNextDay) - 1
     
       if (missedDaysNum > 0) {
-        remData ??= await fetchData<ItemProps>(`remote-server`)
+        remData ??= await fetchData<ItemProps>('server')
         locData.splice(currDay, 0, ...remData.slice(currDay + 1, currDay + 1 + missedDaysNum))
 
         currDay += missedDaysNum
@@ -122,7 +123,7 @@ export default function Home() {
 
     // ...или конец.
     if (locLastDay !== remLastDay) {
-      remData ??= await fetchData<ItemProps>(`remote-server`)
+      remData ??= await fetchData<ItemProps>('server')
       locData.push(...remData.slice(currDay + 1, remData.length))
     }
     
