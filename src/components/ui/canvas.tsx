@@ -4,7 +4,9 @@
 // Для планирования обновлений используется requestAnimationFrame.
 
 
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+
+import { WeatherContext } from '../../stores/context'
 
 import style from './canvas.module.css'
 
@@ -14,13 +16,26 @@ type CanvasProps = { points: number[] | undefined }
 
 const TARGET_TIME = 16.7
 
+const BATCH_SIZE = 365
+const FIRST_INDEX = 0
+
 
 export function Canvas({ points }: CanvasProps) {
+  const { globalState } = useContext(WeatherContext)
+  const { chartType } = globalState
+
   const [graph, setGraph] = useState<number[]>()
   
-  const batchSizeRef = useRef(365)
-  const firstIndexRef = useRef(0)
+  const batchSizeRef = useRef(BATCH_SIZE)
+  const firstIndexRef = useRef<number | undefined>(FIRST_INDEX)
   const lastIndexRef = useRef<number>()
+
+
+  useEffect(() => {
+    batchSizeRef.current = 365
+    firstIndexRef.current = 0
+    lastIndexRef.current = undefined
+  }, [points?.length, chartType])
 
 
   useEffect(() => {
@@ -28,22 +43,28 @@ export function Canvas({ points }: CanvasProps) {
 
     if (points) {
       const animate = () => {
+        const currentFirstIndex = firstIndexRef.current
+        const currentLastIndex = lastIndexRef.current
+
         const start = performance.now()
-        setGraph(points.slice(firstIndexRef.current, lastIndexRef.current))
+        setGraph(points.slice(currentFirstIndex, currentLastIndex))
         const end = performance.now()
-
+  
         const renderTime = end - start
-
+  
         renderTime < TARGET_TIME && (batchSizeRef.current = Math.min(batchSizeRef.current * 2, points.length))
         renderTime > TARGET_TIME && (batchSizeRef.current = Math.max(batchSizeRef.current / 2, points.length))
-
+  
+        firstIndexRef.current = currentLastIndex
         lastIndexRef.current = batchSizeRef.current
-
+        
+        console.log(`last index: ${lastIndexRef.current}`)
+        console.log(`batch size: ${batchSizeRef.current}`)
         if (lastIndexRef.current < points.length) {
           requestAnimationFrame(animate)
         }
       }
-
+  
       animate()
     }
     

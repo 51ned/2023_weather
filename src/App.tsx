@@ -63,7 +63,6 @@ export default function Home() {
     isDataLocal
       ? await formData(res).then(res => saveData(res))
       : saveData(res)
-      console.log(isDataLocal)
   }
 
 
@@ -162,7 +161,7 @@ export default function Home() {
           .filter((item) => { return new Date(item.t) >= userFirstDate && new Date(item.t) <= userLastDate})
           .map(item => item.v)
       }
-  
+      console.log(points.length)
       setPoints(points)
     }
   }, [chartType, firstYear, lastYear, source])
