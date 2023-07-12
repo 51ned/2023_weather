@@ -1,3 +1,5 @@
 export * from './fetch-data'
+export * from './fetch-size'
+export * from './get-data'
 export * from './get-missed-days-num'
 export * from './get-years'

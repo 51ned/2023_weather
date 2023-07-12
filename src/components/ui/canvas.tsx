@@ -1,17 +1,11 @@
-// React Fiber стремится обновлять компонент с частотой 60 FPS.
-// Код внутри useEffect рассчитывает максимальное количество точек (batchSize),
-// которое возможно отрисовать за 16.7 мс (TARGET_TIME), т.е. как раз для частоты 60 FPS.
-// Для планирования обновлений используется requestAnimationFrame.
-
-
 import { useContext, useEffect, useRef, useState } from 'react'
 
-import { WeatherContext } from '../../stores/context'
+import { ChartContext } from '../../stores'
 
 import style from './canvas.module.css'
 
 
-type CanvasProps = { points: number[] | undefined }
+type CanvasProps = { points: number[] }
 
 
 const TARGET_TIME = 16.7
@@ -21,8 +15,8 @@ const FIRST_INDEX = 0
 
 
 export function Canvas({ points }: CanvasProps) {
-  const { globalState } = useContext(WeatherContext)
-  const { chartType } = globalState
+  const { chartState } = useContext(ChartContext)
+  const { chartName } = chartState
 
   const [graph, setGraph] = useState<number[]>()
   
@@ -35,7 +29,7 @@ export function Canvas({ points }: CanvasProps) {
     batchSizeRef.current = 365
     firstIndexRef.current = 0
     lastIndexRef.current = undefined
-  }, [points?.length, chartType])
+  }, [chartName])
 
 
   useEffect(() => {
@@ -58,8 +52,6 @@ export function Canvas({ points }: CanvasProps) {
         firstIndexRef.current = currentLastIndex
         lastIndexRef.current = batchSizeRef.current
         
-        console.log(`last index: ${lastIndexRef.current}`)
-        console.log(`batch size: ${batchSizeRef.current}`)
         if (lastIndexRef.current < points.length) {
           requestAnimationFrame(animate)
         }

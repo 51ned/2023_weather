@@ -1,175 +1,142 @@
-// Я старался, чтобы код читался и без комментариев,
-// от того и много переменных, которые для production
-// можно и удалить.
+/*
+  Первая сессия: запрос версии БД 'currVerDB' в localStorage => при её отсутствии присваивание значения DEF_VER_DB.
+  Базы данных не существует: срабатывание обработчика onupgradeneeded => (хранилища не существует) =>
+  создание хранилища 'temperatureItems' => увеличение 'currVerDB' на 1.
+  Смена chartName: запрос версии БД 'currVerDB' в localStorage => значение переменной 2 / версия БД 1 =>
+  повторное срабатывание обработчика onupgradeneeded => создание хранилища 'precipitationItems' =>
+  увеличение 'currVerDB'.
+*/
+
+/*
+  Если при первой сессии значение 'chartName' не было изменено, в начале второй сессии вызывается обработчик onupgradeneeded,
+  но код внутри него будет проигнорирован (хранилище 'temeratureItems' уже существует). При смене значения 'chartName',
+  обработчик onugpradeneeded будет проигнорирован (версия БД и currVerDB равны). На этот случай из обработчика onsuccess
+  выполнение переходит в функцию 'checkStore', где запрашивается проверка наличия уже хранилища 'precipitationItems'
+  и если его нет, БД закрывается, 'currVerDB' увеличивается (чтобы выполнился обработчик onupgradeneeded)
+  и рекурсивно вызывается функция 'getStore'. Если хранилище есть, выполнение переходит в функцию 'formStore'.
+*/
+
+/*
+  Так или иначе, мы в функции 'formStore'.
+*/
 
 import { useContext, useEffect, useState } from 'react'
 
-import { WeatherContext } from './stores/context'
+import { ChartContext, YearsProvider } from './stores'
 
-import { WeatherApp } from './components/weather-app'
-import { Canvas } from './components/ui'
+import { getData } from './utils'
 
-import { fetchData, getMissedDaysNum } from './utils'
 import type { ItemProps, ChartDataProps } from './utils/interfaces'
 
+import { WeatherApp } from './components/weather-app'
+import { Chart } from './components/ui'
 
-const FIRST_YEAR = 1881
-const LAST_YEAR = 2006
 
-// Я порезал локальный temperature.json: удалил начало и конец,
-// фрагменты различной длины из середины. Не повреждённый файл
-// сохранил на сервере одного из своих сайтов.
-// const serverURL = import.meta.env.VITE_SERVER_URL
+const NAME_DB = 'WeatherDB'
+const DEF_VER_DB = 1
+const UPD_TIME_DB = 21600000
 
 
 export default function Home() {
-  // Я знаю, что стоит разделить контекст для кнопок и селектов.
-  const { globalState } = useContext(WeatherContext)
-  const { chartType, firstYear, lastYear } = globalState
-  
-  const [data, setData] = useState<ChartDataProps>({
+  const { chartState } = useContext(ChartContext)
+  const { chartName } = chartState
+
+  const [points, setPoints] = useState<ChartDataProps>({
     precipitation: null,
     temperature: null
   })
-  const source = data[chartType as keyof ChartDataProps]
-  
-  const [isDataLocal, setIsDataLocal] = useState(true)
-
-  const [points, setPoints] = useState<number[]>()
 
 
-  // Запрашиваем данные
-  const getData = async () => {
-    let res: ItemProps[]
-    
-    try { res = await fetchData(`../data/${chartType}.json`) }
-
-    // Так как в функции .fetchData() есть метод .json(),
-    // пустой файл json или его отсутствие приведёт нас сюда
-    // и файл будет запрошен с удалённого сервера.
-    catch {
-      res = await fetchData<ItemProps>('server')
-      setIsDataLocal(false)
-    }
-
-    return res
-  }
-
-
-  // В зависимости от источника данных, либо
-  // направляем результат из функции выше на проверку,
-  // либо сразу сохраняем в state.
-  const directData = async (res: ItemProps[]) => {
-    isDataLocal
-      ? await formData(res).then(res => saveData(res))
-      : saveData(res)
-  }
-
-
-  // Вызываем getData() и directData()
   useEffect(() => {
-    if (!source) {
-      (async () => {
-        await getData()
-          .then(res => directData(res))
-          .catch(err => console.error(err))
-      })()
-    }
-  }, [chartType])
+    let currVerDB = +(localStorage.getItem('currVerDB') || DEF_VER_DB)
 
 
-  // Если данные были запрошены локально,
-  // начинаем их проверку и если нужно, восстановление.
-  const formData = async (res: ItemProps[]) => {
-    let currDay = 0
-    let locData = res
-    let remData = null
+    const getStore = async (): Promise<IDBDatabase> => {
+      return new Promise((rs, rj) => {
+        const reqDB = indexedDB.open(NAME_DB, currVerDB)
+        
+        reqDB.onupgradeneeded = () => {
+          reqDB.result.onerror = (e: Event) => rj(new Error(`${(e.target as IDBRequest).error}`))
 
-    const locFirstDay = locData[0].t
-    const remFirstDay = `${FIRST_YEAR}-01-01`
+          if (!reqDB.result.objectStoreNames.contains(`${chartName}Items`)) {
+            reqDB.result.createObjectStore(`${chartName}Items`, { autoIncrement: true })
+            localStorage.setItem('currVerDB', String(++currVerDB))
+          }
+        }
 
-    const locLastDay = locData[locData.length - 1].t
-    const remLastDay = `${LAST_YEAR}-12-31`
+        reqDB.onsuccess = async () => {
+          await checkStore(reqDB.result)
+          rs(reqDB.result)
+        }
 
-
-    // Если отсутствует начало...
-    if (locFirstDay !== remFirstDay) {
-      const missedDaysNum = getMissedDaysNum(locFirstDay, remFirstDay)
-      
-      currDay = missedDaysNum
-
-      remData = await fetchData<ItemProps>('server')
-      locData.splice(0, 0, ...remData.slice(0, missedDaysNum))
+        reqDB.onerror = (e: Event) => rj(new Error(`${(e.target as IDBRequest).error}`))
+      })
     }
 
 
-    // ...фрагменты в середине...
-    while (currDay < locData.length - 1) {
-      const locCurrDay = locData[currDay].t
-      const locNextDay = locData[currDay + 1].t
-      const missedDaysNum = getMissedDaysNum(locCurrDay, locNextDay) - 1
-    
-      if (missedDaysNum > 0) {
-        remData ??= await fetchData<ItemProps>('server')
-        locData.splice(currDay, 0, ...remData.slice(currDay + 1, currDay + 1 + missedDaysNum))
-
-        currDay += missedDaysNum
+    const checkStore = async (db: IDBDatabase) => {
+      if (!db.objectStoreNames.contains(`${chartName}Items`)) {
+        db.close()
+        localStorage.setItem('currVerDB', String(++currVerDB))
+        await getStore()
       }
-    
-      currDay++
+
+      else await formStore(db)
     }
 
 
-    // ...или конец.
-    if (locLastDay !== remLastDay) {
-      remData ??= await fetchData<ItemProps>('server')
-      locData.push(...remData.slice(currDay + 1, remData.length))
-    }
+    const formStore = async (db: IDBDatabase): Promise<IDBDatabase> => {
+      let tx: IDBTransaction
+      let store: IDBObjectStore
+
+      await getData<ItemProps>(`../data/${chartName}.json`)
+        .then(data => {
+          tx = db.transaction(`${chartName}Items`, 'readwrite') 
+          store = tx.objectStore(`${chartName}Items`)
+          data.forEach(obj => store.add(obj.v))
+        })
     
-    remData = null
+      return new Promise<IDBDatabase>((rs, rj) => {
+        tx.oncomplete = async () => {
+          setState(db)
+          rs(db)
+        }
 
-    return locData
-  }
-  
+        tx.onerror = (e: Event) => rj(new Error(`${(e.target as IDBTransaction).error}`))
+      })
+    }
 
-  // Сохраняем данные в state.
-  const saveData = async (res: ItemProps[]) => setData({...data, [`${chartType}`]: res})
 
-  
-  // Наконец, находим точки графика и также сохраняем их в state.
-  // Я делаю это, чтобы разделить логику запроса данных и отрисовки графика
-  // (продолжение в src/components/ui/canvas).
+    const setState = async (db: IDBDatabase) => {
+      return new Promise((rs, rj) => {
+        const tx = db.transaction(`${chartName}Items`, 'readonly')
+        const store = tx.objectStore(`${chartName}Items`)
+        const req = store.getAll()
+
+        req.onsuccess = () => rs(setPoints({...points, [`${chartName}`]: req.result}))
+
+        req.onerror = (e: Event) => rj(new Error(`${(e.target as IDBRequest).error}`))
+        tx.onerror = (e: Event) => rj(new Error(`${(e.target as IDBTransaction).error}`))
+      })
+    }
+
+
+    (async () => {
+      await getStore()
+    })()
+  }, [chartName])
+
+
   useEffect(() => {
-    if (source) {
-      const dataFirstDate = new Date(source[0].t)
-      const userFirstDate = new Date(`${firstYear}-01-01`)
-  
-      const dataLastDate = new Date(source[source.length - 1].t)
-      let userLastDate = new Date(`${lastYear}-12-31`)
-
-
-      if (firstYear === lastYear) {
-        userLastDate = new Date(`${firstYear}-12-31`)
-      }
-
-      let points: number[]
-  
-      if (dataFirstDate === userFirstDate && dataLastDate === userLastDate) {
-        points = source.map(item => item.v)
-      } else {
-        points = source
-          .filter((item) => { return new Date(item.t) >= userFirstDate && new Date(item.t) <= userLastDate})
-          .map(item => item.v)
-      }
-      console.log(points.length)
-      setPoints(points)
-    }
-  }, [chartType, firstYear, lastYear, source])
+    console.log(points)
+  }, [points])
 
 
   return (
-    <WeatherApp>
-      <Canvas points={points} />
-    </WeatherApp>
+    <YearsProvider>
+      <WeatherApp>
+        {/* <Chart data={data[`${chartName}` as keyofChartDataProps]} /> */}
+      </WeatherApp>
+    </YearsProvider>
   )
 }

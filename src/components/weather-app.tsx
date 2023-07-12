@@ -2,7 +2,7 @@ import { useContext, useMemo } from 'react'
 
 import { Button, Select} from './ui'
 
-import { WeatherContext } from '../stores/context'
+import { ChartContext, YearsContext } from '../stores'
 
 import { yearsArr as years } from '../utils/get-years'
 
@@ -19,8 +19,9 @@ const LAST_YEAR = 2006
 
 
 export function WeatherApp({ children }: WeatherAppProps) {
-  const { globalState } = useContext(WeatherContext)
-  const { firstYear } = globalState
+  const { chartState } = useContext(ChartContext)
+  const { yearsState } = useContext(YearsContext)
+  const { firstYear } = yearsState
 
   // При выборе года в первом селекте, массив опций для второго селекта
   // пересобирается, начиная с выбранного года.
@@ -54,13 +55,13 @@ export function WeatherApp({ children }: WeatherAppProps) {
           <div className={style.selects}>
             <Select
               opts={years}
-              selectedYear={globalState.firstYear}
+              selectedYear={yearsState.firstYear}
               yearKey={'firstYear'}
             />
 
             <Select
               opts={yearsReversed}
-              selectedYear={globalState.lastYear}
+              selectedYear={yearsState.lastYear}
               yearKey={'lastYear'}
             />
           </div>

@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { WeatherContext } from '../../stores/context'
+import { ChartContext } from '../../stores'
 
 import style from './button.module.css'
 
@@ -11,24 +11,20 @@ interface ButtonProps {
 }
 
 
-export function Button({
-  children,
-  value
-}: ButtonProps) {
-
-  const { globalState, setGlobalState } = useContext(WeatherContext)
+export function Button({ children, value }: ButtonProps) {
+  const { chartState, setChartState } = useContext(ChartContext)
 
   const handleClick = (evt: {
-    preventDefault: () => void;
+    preventDefault: () => void
     currentTarget: { value: string }
   }) => {
     evt.preventDefault()
 
     const value = evt.currentTarget.value
 
-    if (value === globalState.chartType) return
+    if (value === chartState.chartName) return
 
-    setGlobalState({ ...globalState, chartType: value })
+    setChartState({ ...chartState, chartName: value })
   }
   
   return (

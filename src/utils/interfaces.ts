@@ -4,8 +4,8 @@ type ItemProps = {
 }
 
 interface ChartDataProps {
-  precipitation: null | ItemProps[],
-  temperature: null | ItemProps[],
+  precipitation: number[] | null,
+  temperature: number[] | null
 }
 
 

@@ -1,16 +1,12 @@
-/**
- * Request for data
- * @param url request
- * @returns data
- */
-
-
- export async function fetchData<T>(url: string): Promise<T[]> {
+export async function fetchData<T>(url: string): Promise<{ data: T[], size: number }> {
   const res = await fetch(url)
 
   if (res.ok) {
-    return await res.json()
+    const data = await res.json()
+    const size = Number(res.headers.get('content-length'))
+
+    return { data, size }
   }
 
-  throw new Error()
+  throw new Error();
 }

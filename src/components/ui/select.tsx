@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { WeatherContext } from '../../stores/context'
+import { YearsContext } from '../../stores'
 
 import style from './select.module.css'
 
@@ -12,12 +12,8 @@ interface SelectProps {
 }
 
 
-export function Select({
-  opts,
-  selectedYear,
-  yearKey
-}: SelectProps) {
-  const { globalState, setGlobalState} = useContext(WeatherContext)
+export function Select({ opts, selectedYear, yearKey }: SelectProps) {
+  const { yearsState, setYearsState} = useContext(YearsContext)
 
   const selectHandle = (evt: {
     preventDefault: () => void;
@@ -29,7 +25,7 @@ export function Select({
 
     if (value === selectedYear) return
 
-    setGlobalState({...globalState, [`${yearKey}`]: value})
+    setYearsState({...yearsState, [`${yearKey}`]: value})
   }
 
   return (
