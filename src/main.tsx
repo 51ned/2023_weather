@@ -6,9 +6,7 @@ import { ChartProvider } from './stores'
 
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <ChartProvider>
-      <App />
-    </ChartProvider>
-  </React.StrictMode>
+  <ChartProvider>
+    <App />
+  </ChartProvider>
 )

@@ -4,53 +4,70 @@ import { YearsContext } from '../../stores'
 
 import { Canvas } from './'
 
-import type { ItemProps } from '../../utils/interfaces'
+import type { ChartDataProps } from '../../utils/interfaces'
 
 
-interface ChartProps { data: ItemProps[] }
+const FIRST_DATE = '1881-01-01'
+const MS_IN_DAY = 86400000
+const TARGET_TIME = 16.7
+
+
+interface ChartProps { data: number[] | null }
 
 
 export function Chart({ data }: ChartProps) {
   const { yearsState } = useContext(YearsContext)
   const { firstYear, lastYear } = yearsState
 
-  const [points, setPoints] = useState<number[]>()
+  const [chartPoints, setChartPoints] = useState<number[]>()
 
 
   useEffect(() => {
-    const dataFirstDate = new Date(data[0].t)
-    const userFirstDate = new Date(`${firstYear}-01-01`)
-
-    const dataLastDate = new Date(data[data.length - 1].t)
-    let userLastDate = new Date(`${lastYear}-12-31`)
-
-    if (firstYear === lastYear) {
-      userLastDate = new Date(`${firstYear}-12-31`)
-    }
-
-    let points: number[]
+    const getIndex = (a: string, b: string): number => {
+      const firstDate = Math.abs(Date.parse(a))
+      const lastDate = Math.abs(Date.parse(b))
   
-    if (dataFirstDate === userFirstDate && dataLastDate === userLastDate) {
-      points = data.map(item => item.v)
+      return Math.abs((lastDate - firstDate) / MS_IN_DAY)
+    }
+  
+    const firstChoosedDate = `${firstYear}-01-01`
+    let lastChoosedDate = `${lastYear}-12-31`
+  
+    firstYear === lastYear
+      lastChoosedDate = `${firstYear}-12-31`
+  
+    const firstIndex = getIndex(FIRST_DATE, firstChoosedDate)
+    let lastIndex = getIndex(firstChoosedDate, lastChoosedDate)
+
+
+    let animFrameID: number
+    let batchSize = 365
+
+    if (data) {
+      const animate = () => {
+        const start = performance.now()
+          setChartPoints(data.slice(firstIndex, lastIndex))
+        const end = performance.now()
+
+        const renderTime = end - start
+
+        renderTime < TARGET_TIME && (batchSize = Math.min(batchSize * 2, data.length))
+        renderTime > TARGET_TIME && (batchSize = Math.max(batchSize / 2, data.length))
+
+        lastIndex = batchSize
+
+        if (lastIndex < data.length) {
+          requestAnimationFrame(animate)
+        }
+      }
+
+      animate()
     }
     
-    else {
-      points = data
-        .filter((item) => { return new Date(item.t) >= userFirstDate && new Date(item.t) <= userLastDate})
-        .map(item => item.v)
-    }
-
-    setPoints(points)
+    return () => cancelAnimationFrame(animFrameID)
   }, [data, firstYear, lastYear])
 
 
-  useEffect(() => {
-    let animFrameID: number
-  }, [points])
 
-
-  return (
-    <></>
-    // <Canvas points={points} />
-  )
+  return null
 }
