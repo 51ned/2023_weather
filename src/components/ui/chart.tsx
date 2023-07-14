@@ -1,73 +1,86 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 
-import { YearsContext } from '../../stores'
+import { ChartContext, YearsContext } from '../../stores'
 
 import { Canvas } from './'
 
+import { drawChart, getIndexes } from '../../utils'
 import type { ChartDataProps } from '../../utils/interfaces'
 
 
-const FIRST_DATE = '1881-01-01'
-const MS_IN_DAY = 86400000
+const NAME_DB = 'WeatherDB'
+
+const DEF_BATCH_SIZE = 365
 const TARGET_TIME = 16.7
 
 
-interface ChartProps { data: number[] | null }
-
-
-export function Chart({ data }: ChartProps) {
+export function Chart() {
   const { yearsState } = useContext(YearsContext)
   const { firstYear, lastYear } = yearsState
 
-  const [chartPoints, setChartPoints] = useState<number[]>()
+  const { chartState } = useContext(ChartContext)
+  const { chartName } = chartState
+
+  const trigger = useRef(false)
+
+  const [points, setPoints] = useState<number[]>([])
+
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const batchRef = useRef
+
+  useEffect(() => {(async () => await checkLocalStorage())()}, []) // бесит сука. написать свой useEffect?
+  useEffect(() => {(async () => await checkLocalStorage())()}, [chartName])
+
+  const checkLocalStorage = async () => {
+    return new Promise((rs, rj) => {
+      const timer = setInterval(() => {
+        if (localStorage.getItem(`${chartName}StoreFormed`)) {
+          rs(trigger.current = !trigger.current)
+          clearInterval(timer)
+        }
+      }, 100)
+    })
+  }
 
 
   useEffect(() => {
-    const getIndex = (a: string, b: string): number => {
-      const firstDate = Math.abs(Date.parse(a))
-      const lastDate = Math.abs(Date.parse(b))
-  
-      return Math.abs((lastDate - firstDate) / MS_IN_DAY)
-    }
-  
-    const firstChoosedDate = `${firstYear}-01-01`
-    let lastChoosedDate = `${lastYear}-12-31`
-  
-    firstYear === lastYear
-      lastChoosedDate = `${firstYear}-12-31`
-  
-    const firstIndex = getIndex(FIRST_DATE, firstChoosedDate)
-    let lastIndex = getIndex(firstChoosedDate, lastChoosedDate)
+    const reqDB = indexedDB.open(NAME_DB)
 
+    reqDB.onsuccess = () => {
+      const tx = reqDB.result.transaction(`${chartName}`, 'readonly')
+      const store = tx.objectStore(`${chartName}`)
 
-    let animFrameID: number
-    let batchSize = 365
+      const [firstIndex, lastIndex] = getIndexes(firstYear, lastYear)
+      const range = IDBKeyRange.bound(firstIndex, lastIndex)
 
-    if (data) {
-      const animate = () => {
-        const start = performance.now()
-          setChartPoints(data.slice(firstIndex, lastIndex))
-        const end = performance.now()
+      let firstBatchIndex = firstIndex
+      let lastBatchIndex = DEF_BATCH_SIZE
+      let batchRange = IDBKeyRange.bound(firstBatchIndex, lastBatchIndex)
 
-        const renderTime = end - start
+      const cursorReq = store.openCursor(range)
 
-        renderTime < TARGET_TIME && (batchSize = Math.min(batchSize * 2, data.length))
-        renderTime > TARGET_TIME && (batchSize = Math.max(batchSize / 2, data.length))
+      cursorReq.onsuccess = () => {
+        if (cursorReq.result) { 
+          const drawStart = performance.now()
 
-        lastIndex = batchSize
+          const batchReq = store.getAll(batchRange)
+          
+          batchReq.onsuccess = () => {
+            setPoints((prv) => [...prv, ...batchReq.result])
+            drawChart(canvasRef.current, points)
+          }
 
-        if (lastIndex < data.length) {
-          requestAnimationFrame(animate)
+          const drawFinish = performance.now()
+          const drawTime = drawStart - drawFinish
         }
       }
 
-      animate()
+      cursorReq.onerror = (e: Event) => new Error(`${(e.target as IDBRequest).error}`)
     }
-    
-    return () => cancelAnimationFrame(animFrameID)
-  }, [data, firstYear, lastYear])
+
+    reqDB.onerror = (e: Event) => new Error(`${(e.target as IDBRequest).error}`)
+  }, [firstYear, lastYear, trigger])
 
 
-
-  return null
+  return <canvas ref={canvasRef} />
 }
