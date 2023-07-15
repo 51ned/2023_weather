@@ -43,22 +43,22 @@ export default function Home() {
 
 
     const formStore = async (db: IDBDatabase) => {
-      const data = await getData<ItemProps>(`../data/${chartName}.json`) // вот тут узенько
+      const data = await getData<ItemProps>(`../data/${chartName}.json`)
       const tx = db.transaction(`${chartName}`, 'readwrite') 
       const store = tx.objectStore(`${chartName}`)
 
-      data.forEach(obj => store.add(obj.v)) // см. src/utils/get-indexes.ts
+      data.forEach(obj => store.add(obj.v))
     
       tx.oncomplete = () => {
         db.close()
-        localStorage.setItem(`${chartName}StoreFormed`, 'true')
+        localStorage.setItem(`${chartName}StoreFilled`, 'true')
       }
         
       tx.onerror = (e: Event) => new Error(`${(e.target as IDBTransaction).error}`)
     }
 
 
-    if (localStorage.getItem(`${chartName}StoreFormed`) !== 'true') {
+    if (localStorage.getItem(`${chartName}StoreFilled`) !== 'true') {
       localStorage.setItem('currVerDB', String(++currVerDB))
       getStore()
     }
