@@ -21,7 +21,7 @@ export function getIndexes(firstYear: string, lastYear: string): number[] {
   const firstChoosedDate = `${firstYear}-01-01`
   let lastChoosedDate
 
-  firstYear !== lastYear
+  firstYear !== lastYear // Если пользователь выбрал один и тот же год...
     ? (lastChoosedDate = `${lastYear}-12-31`)
     : (lastChoosedDate = `${firstYear}-12-31`)
 

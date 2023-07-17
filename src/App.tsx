@@ -23,22 +23,16 @@ export default function Home() {
     let currVerDB = +(localStorage.getItem('currVerDB') || DEF_VER_DB)
 
 
-    const getStore = (): Promise<IDBDatabase> => {
+    const getStore = () => {
       const reqDB = indexedDB.open(NAME_DB, currVerDB)
 
-      return new Promise((rs, rj) => {
-        reqDB.onupgradeneeded = () => {
-          reqDB.result.onerror = (e: Event) => rj(new Error(`${(e.target as IDBRequest).error}`))
-          reqDB.result.createObjectStore(`${chartName}`, { autoIncrement: true })
-        }
+      reqDB.onupgradeneeded = () => {
+        reqDB.result.onerror = (e: Event) => console.error(`${(e.target as IDBRequest).error}`)
+        reqDB.result.createObjectStore(`${chartName}`, { autoIncrement: true })
+      }
 
-        reqDB.onsuccess = () => {
-          formStore(reqDB.result)
-          rs(reqDB.result)
-        }
-
-        reqDB.onerror = (e: Event) => rj(new Error(`${(e.target as IDBRequest).error}`))
-      })
+      reqDB.onsuccess = () => formStore(reqDB.result)
+      reqDB.onerror = (e: Event) => console.error(`${(e.target as IDBRequest).error}`)
     }
 
 
@@ -54,7 +48,7 @@ export default function Home() {
         localStorage.setItem(`${chartName}StoreFilled`, 'true')
       }
         
-      tx.onerror = (e: Event) => new Error(`${(e.target as IDBTransaction).error}`)
+      tx.onerror = (e: Event) => console.error(`${(e.target as IDBTransaction).error}`)
     }
 
 
