@@ -25,7 +25,7 @@ export function getIndexes(firstYear: string, lastYear: string): number[] {
     ? (lastChoosedDate = `${lastYear}-12-31`)
     : (lastChoosedDate = `${firstYear}-12-31`)
 
-  const firstIndex = getIndex(FIRST_DATE, firstChoosedDate)
+  const firstIndex = getIndex(FIRST_DATE, firstChoosedDate) + 1
   const lastIndex = getIndex(FIRST_DATE, lastChoosedDate) + 1
 
   return [firstIndex, lastIndex]
