@@ -2,15 +2,15 @@ import { useContext, useEffect, useRef, useState } from 'react'
 
 import { ChartContext, YearsContext } from '../../stores'
 
-import { drawChart, getIndexes } from '../../utils'
+import { createChartDrawer, getIndexes } from '../../utils'
 
 import style from './chart.module.css'
 
 
 const NAME_DB = 'WeatherDB'
 
-const DEF_BATCH_SIZE = 365
-const TARGET_TIME = 16.7
+const DEF_BATCH_SIZE = 1
+const TARGET_TIME = 16.67
 
 
 export function Chart() {
@@ -22,8 +22,10 @@ export function Chart() {
 
   const [toggle, setToggle] = useState<string | null>(null)
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const frameRef = useRef<number>()
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const drawChart = createChartDrawer(canvasRef.current)
 
   useEffect(() => {
     const storageListner = setInterval(() => {
@@ -36,8 +38,6 @@ export function Chart() {
 
 
   useEffect(() => {
-    let processChartFrameID: number
-  
     if (toggle) {
       const reqDB = indexedDB.open(NAME_DB)
   
@@ -51,42 +51,49 @@ export function Chart() {
         const storeReq = store.getAll(range)
   
         storeReq.onsuccess = () => {
-          let batchFirstIndex = firstIndex
+          let batchFirstIndex = 0
           let batchLastIndex = DEF_BATCH_SIZE
+
+          let anmStart: number | null = null
   
-          const processChart = () => {
+          const processChart = (timeStamp: number) => {
+            if (!anmStart) {
+              anmStart = timeStamp
+            }
+
+            const anmTime = timeStamp - anmStart
+
             const drawStart = performance.now()
   
-            const batch = storeReq.result.slice(batchFirstIndex, batchLastIndex)
-            drawChart(canvasRef.current, batch)
+            drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
 
             const drawFinish = performance.now()
             const drawTime = drawFinish - drawStart
+            const totalTime = anmTime + drawTime
             
             batchFirstIndex = batchLastIndex
 
-            if (drawTime === 0) {
-              batchLastIndex = lastIndex
+            switch (true) {
+              case totalTime === 0:
+                batchLastIndex = Math.min(Math.round(batchLastIndex * TARGET_TIME), lastIndex)
+                break
+              case totalTime < TARGET_TIME:
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex)
+                break
+              case totalTime === TARGET_TIME:
+                batchLastIndex = batchLastIndex
+                break
+              case totalTime > TARGET_TIME:
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex)
+                break
             }
-  
-            if (drawTime < TARGET_TIME) {
-              batchLastIndex = Math.min(
-                Math.ceil(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex
-              )
-            }
-  
-            if (drawTime > TARGET_TIME) {
-              batchLastIndex = Math.min(
-                Math.floor(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex
-              )
-            }
-  
-            if (batchLastIndex < lastIndex) {
-              processChartFrameID = requestAnimationFrame(processChart)
+            
+            if (batchLastIndex <= lastIndex) {
+              frameRef.current = requestAnimationFrame(processChart)
             }
           }
-
-          processChart()
+          
+          requestAnimationFrame(processChart)
         }
         
         storeReq.onerror = (e: Event) => console.error(`${(e.target as IDBRequest).error}`)
@@ -98,7 +105,7 @@ export function Chart() {
   
     return () => {
       setToggle(null)
-      cancelAnimationFrame(processChartFrameID)
+      frameRef.current && cancelAnimationFrame(frameRef.current)
     }
   }, [chartName, firstYear, lastYear, toggle])
 

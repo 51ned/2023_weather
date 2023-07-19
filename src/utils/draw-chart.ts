@@ -1,19 +1,28 @@
-export function drawChart(node: HTMLCanvasElement | null, points: number[]) {
+export function createChartDrawer(node: HTMLCanvasElement | null) {
+  let ctx: CanvasRenderingContext2D | null = null
+  let height = 0
+  let maxValue = 0
+  let minValue = 0
+  let scaleY = 0
+  let width = 0
+  
+
   if (node) {
-    const ctx = node.getContext('2d')
+    ctx = node.getContext('2d')
+    height = node.height
+    width = node.width
+  }
 
-    if (ctx) {
-      ctx.clearRect(0, 0, node.width, node.height)
-
-      const width = node.width
-      const height = node.height
+  return function drawChart(points: number[]) {
+    if (ctx && points.length > 0) {
+      ctx.clearRect(0, 0, width, height)
 
       const stepX = width / points.length
 
-      const minValue = Math.min(...points)
-      const maxValue = Math.max(...points)
+      minValue = Math.min(...points)
+      maxValue = Math.max(...points)
 
-      const scaleY = height / (maxValue - minValue)
+      scaleY = height / (maxValue - minValue)
 
       ctx.beginPath()
       ctx.moveTo(0, (points[0] - minValue) * scaleY)
