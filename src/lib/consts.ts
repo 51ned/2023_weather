@@ -1,0 +1,16 @@
+const DEF_BATCH_SIZE = 1
+const DEF_VER_DB = 0
+const FIRST_YEAR = 1881
+const LAST_YEAR = 2006
+const NAME_DB = 'WeatherDB'
+const TARGET_TIME = 16.67
+
+
+export {
+  DEF_BATCH_SIZE,
+  DEF_VER_DB,
+  FIRST_YEAR,
+  LAST_YEAR,
+  NAME_DB,
+  TARGET_TIME
+}

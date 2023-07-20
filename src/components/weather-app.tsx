@@ -1,73 +1,70 @@
 import { useContext, useMemo } from 'react'
+import { useWindowSize } from '../hooks'
 
-import { Button, Select} from './ui'
+import { YearsContext } from '../stores'
 
-import { ChartContext, YearsContext } from '../stores'
+import { Button, Select} from './'
 
-import { yearsArr as years } from '../utils/get-years'
+import { getYears } from '../utils/get-years'
+
+import { FIRST_YEAR, LAST_YEAR } from '../lib/consts'
 
 import style from './weather-app.module.css'
 
 
-type WeatherAppProps = {
-  children: React.ReactNode
-}
-
-
-const FIRST_YEAR = 1881
-const LAST_YEAR = 2006
+type WeatherAppProps = { children: React.ReactNode }
 
 
 export function WeatherApp({ children }: WeatherAppProps) {
-  const { chartState } = useContext(ChartContext)
   const { yearsState } = useContext(YearsContext)
-  const { firstYear } = yearsState
+  const { firstYear, lastYear } = yearsState
 
-  // При выборе года в первом селекте, массив опций для второго селекта
-  // пересобирается, начиная с выбранного года.
-  const yearsReversed = useMemo(() => {
-    let arr = []
 
-    for (let i = +firstYear; i <= LAST_YEAR; i++) {
-      arr.push(i)
-    }
-    
-    return arr.reverse()
-    }, [firstYear])
+  const { height: screenHeight, width: screenWidth } = useWindowSize()
+
+  const articleHeight = screenHeight * (1/2)
+  const articleWidth = screenWidth * (1/2)
+
+
+  const years = useMemo(() => getYears(FIRST_YEAR, +lastYear), [lastYear])
+  const yearsReversed = useMemo(() => getYears(+firstYear, LAST_YEAR).reverse(), [firstYear])
 
   
   return (
-    <article className={style.wrap}>
-      <h1 className={style.header}>Архив метеослужбы</h1>
-
+    <article
+      className={style.wrap}
+      style={{height: articleHeight, width: articleWidth}}
+    >
       <form className={style.container}>
-        <div className={style.buttons}>
+        <fieldset className={style.selects}>
+          <Select
+            label={'Choose first year'}
+            name={'first year'}
+            opts={years}
+            selectedYear={yearsState.firstYear}
+            yearKey={'firstYear'}
+          />
+
+          <Select
+            label={'Choose last year'}
+            name={'last year'}
+            opts={yearsReversed}
+            selectedYear={yearsState.lastYear}
+            yearKey={'lastYear'}
+          />
+        </fieldset>
+      
+        { children }
+
+        <fieldset className={style.buttons}>
           <Button value='temperature'>
-            Температура
+            Temperature
           </Button>
 
           <Button value='precipitation'>
-            Осадки
+            Precipitation
           </Button>
-        </div>
-
-        <div>
-          <div className={style.selects}>
-            <Select
-              opts={years}
-              selectedYear={yearsState.firstYear}
-              yearKey={'firstYear'}
-            />
-
-            <Select
-              opts={yearsReversed}
-              selectedYear={yearsState.lastYear}
-              yearKey={'lastYear'}
-            />
-          </div>
-      
-          { children }
-        </div>
+        </fieldset>
       </form>
     </article>
   )

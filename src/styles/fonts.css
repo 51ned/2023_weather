@@ -1,0 +1,40 @@
+@font-face {
+  font-family: 'Avenir';
+  font-style: normal;
+  src: local('Avenir'),
+       url('../fonts/avenir-roman.woff2') format('woff2');
+}
+
+
+* {
+  font-family: 'Avenir', sans-serif;
+  font-weight: 400;
+}
+
+
+a {
+  border-bottom: 1px solid;
+  color: inherit;
+  text-decoration: none;
+}
+
+
+:root {
+  --smallest-font-size: 14px;
+  --regular-font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --smallest-font-size: 12px;
+    --regular-font-size: 16px;
+  }
+}
+
+
+.smallest-font-size { font-size: var(--smallest-font-size); }
+.regular-font-size { font-size: var(--regular-font-size); }
+
+
+.dark-color { color: #000; }
+.light-color { color: #fff; }

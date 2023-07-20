@@ -4,19 +4,12 @@
 // okFace
 
 
-const FIRST_YEAR = 1881
-const LAST_YEAR = 2006
-
-
-const getYears = () => {
+export const getYears = (a: number, b: number) => {
   let arr = []
 
-  for (let i = FIRST_YEAR; i <= LAST_YEAR; i++) {
+  for (let i = a; i <= b; i++) {
     arr.push(i)
   }
   
   return arr
 }
-
-
-export const yearsArr = getYears()

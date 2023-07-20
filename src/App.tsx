@@ -1,17 +1,17 @@
 import { useContext, useEffect } from 'react'
 
+import { MainLayout } from './layouts/main'
+
+import { Chart, WeatherApp } from './components'
+
 import { ChartContext, YearsProvider } from './stores'
 
 import { getData } from './utils'
 
-import type { ItemProps } from './utils/interfaces'
+import { DEF_VER_DB, NAME_DB } from './lib/consts'
+import type { ItemProps } from './lib/interfaces'
 
-import { WeatherApp } from './components/weather-app'
-import { Chart } from './components/ui'
-
-
-const NAME_DB = 'WeatherDB'
-const DEF_VER_DB = 0
+import './styles/index.css'
 
 
 export default function Home() {
@@ -37,11 +37,11 @@ export default function Home() {
 
 
     const formStore = async (db: IDBDatabase) => {
-      const data = await getData<ItemProps>(`../data/${chartName}.json`)
+      const data = await getData<ItemProps>(`../data/${chartName}.json`) // тут узенько, мне не нравится
       const tx = db.transaction(`${chartName}`, 'readwrite') 
       const store = tx.objectStore(`${chartName}`)
 
-      data.forEach(obj => store.add(obj.v))
+      data.forEach(obj => store.add(obj.v)) // см. src/utils/get-indexes.ts
     
       tx.oncomplete = () => {
         db.close()
@@ -61,9 +61,11 @@ export default function Home() {
 
   return (
     <YearsProvider>
-      <WeatherApp>
-        <Chart />
-      </WeatherApp>
+      <MainLayout>
+        <WeatherApp>
+          <Chart />
+        </WeatherApp>
+      </MainLayout>
     </YearsProvider>
   )
 }

@@ -1,4 +1,5 @@
 {
+    "homepage": "https://changetheweather.github.io/51ned/2023_weather_vite_version",
     "name": "react",
     "private": true,
     "version": "0.0.0",
@@ -6,9 +7,13 @@
     "scripts": {
         "start": "vite",
         "build": "tsc && vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build"
     },
     "dependencies": {
+        "classnames": "^2.3.2",
+        "path-browserify": "^1.0.1",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     },
@@ -16,6 +21,7 @@
         "@types/react": "^18.0.17",
         "@types/react-dom": "^18.0.6",
         "@vitejs/plugin-react": "^2.1.0",
+        "gh-pages": "^5.0.0",
         "typescript": "^4.6.4",
         "vite": "^3.1.0"
     }

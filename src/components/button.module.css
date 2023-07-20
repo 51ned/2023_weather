@@ -1,0 +1,10 @@
+.button {
+  background-color: hsl(var(--h), calc(var(--s) + 15%), calc(var(--l) + 35%));
+  border: none;
+  border-radius: var(--indent-12-8);
+  cursor: pointer;
+  font-size: var(--regular-font-size);
+  outline: none;
+  padding: var(--indent-16-12);
+  width: 100%;
+}

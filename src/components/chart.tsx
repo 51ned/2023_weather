@@ -1,16 +1,12 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 
-import { ChartContext, YearsContext } from '../../stores'
+import { ChartContext, YearsContext } from '../stores'
 
-import { createChartDrawer, getIndexes } from '../../utils'
+import { Canvas } from './'
 
-import style from './chart.module.css'
+import { createChartDrawer, getIndexes } from '../utils'
 
-
-const NAME_DB = 'WeatherDB'
-
-const DEF_BATCH_SIZE = 1
-const TARGET_TIME = 16.67
+import { DEF_BATCH_SIZE, NAME_DB, TARGET_TIME } from '../lib/consts'
 
 
 export function Chart() {
@@ -22,16 +18,16 @@ export function Chart() {
 
   const [toggle, setToggle] = useState<string | null>(null)
 
-  const frameRef = useRef<number>()
-
+  const frameRef = useRef<number>(0)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  
   const drawChart = createChartDrawer(canvasRef.current)
 
   useEffect(() => {
     const storageListner = setInterval(() => {
       if (localStorage.getItem(`${chartName}StoreFilled`) === 'true') {
-        clearInterval(storageListner)
         setToggle('str')
+        clearInterval(storageListner)
       }
     }, 100)
   }, [chartName, firstYear, lastYear])
@@ -61,16 +57,15 @@ export function Chart() {
               anmStart = timeStamp
             }
 
-            const anmTime = timeStamp - anmStart
-
+            const anmTime = (timeStamp - anmStart) / 1000
+            
             const drawStart = performance.now()
-  
-            drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
-
+              drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
             const drawFinish = performance.now()
+
             const drawTime = drawFinish - drawStart
             const totalTime = anmTime + drawTime
-            
+
             batchFirstIndex = batchLastIndex
 
             switch (true) {
@@ -78,13 +73,13 @@ export function Chart() {
                 batchLastIndex = Math.min(Math.round(batchLastIndex * TARGET_TIME), lastIndex)
                 break
               case totalTime < TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex)
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / totalTime)), lastIndex)
                 break
               case totalTime === TARGET_TIME:
                 batchLastIndex = batchLastIndex
                 break
               case totalTime > TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / drawTime)), lastIndex)
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / totalTime)), lastIndex)
                 break
             }
             
@@ -105,10 +100,10 @@ export function Chart() {
   
     return () => {
       setToggle(null)
-      frameRef.current && cancelAnimationFrame(frameRef.current)
+      cancelAnimationFrame(frameRef.current)
     }
   }, [chartName, firstYear, lastYear, toggle])
 
 
-  return <canvas ref={canvasRef} />
+  return <Canvas ref={canvasRef} />
 }

@@ -1,0 +1,6 @@
+.canvas {
+  background-color: hsl(var(--h), calc(var(--s) + 15%), calc(var(--l) + 35%));
+  border-radius: var(--indent-12-8);
+  flex: 1;
+  padding: var(--indent-12-8);
+}

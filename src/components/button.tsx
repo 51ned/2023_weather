@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 
-import { ChartContext } from '../../stores'
+import { ChartContext } from '../stores'
 
 import style from './button.module.css'
 
