@@ -1,8 +1,10 @@
 export function createChartDrawer(node: HTMLCanvasElement | null) {
   return function drawChart(points: number[]) {
+    // console.log(points.length)
     if (!node) return
 
     const ctx = node.getContext('2d')
+
     if (!ctx || points.length === 0) return
 
     const height = node.height

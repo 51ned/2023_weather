@@ -51,16 +51,10 @@ export function Chart() {
           let batchFirstIndex = 0
           let batchLastIndex = DEF_BATCH_SIZE
 
-          let anmStart: number = 0
+          let anmStart = 0
           let anmTime: number | null = null
-
-          let formStart: number
-          let formFinish: number
-          let formTime: number
           
           const formChart = (anmFinish: number) => {
-            formStart = performance.now()
-
             if (anmStart !== 0) {
               anmTime = anmFinish - anmStart
             }
@@ -71,33 +65,28 @@ export function Chart() {
 
             batchFirstIndex = batchLastIndex
 
-            switch (true) {
-              case formTime === 0:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * TARGET_TIME), lastIndex)
-                break
-              case formTime < TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / formTime)), lastIndex)
-                break
-              case formTime === TARGET_TIME:
-                batchLastIndex = batchLastIndex
-                break
-              case formTime > TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / formTime)), lastIndex)
-                break
+            let multiplier
+
+            if (anmTime) {
+              anmTime < TARGET_TIME
+                ? multiplier = TARGET_TIME / anmTime * 10
+                : multiplier = anmTime / TARGET_TIME * 10
+            } else {
+              multiplier = 1
             }
+            
+            batchLastIndex = Math.min(Math.round(batchLastIndex * multiplier), lastIndex)
 
             if (batchLastIndex < lastIndex) {
               frameRef.current = requestAnimationFrame(formChart)
             }
-
-            formFinish = performance.now()
-            formTime = formFinish - formStart
 
             if (batchLastIndex === lastIndex) {
               drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
               cancelAnimationFrame(frameRef.current)
             }
           }
+
           requestAnimationFrame(formChart)
         }
         
