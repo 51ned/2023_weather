@@ -4,6 +4,12 @@
   padding: 24px;
 }
 
+@media (max-width: 768px) {
+  .wrap {
+    border-radius: 0;
+  }
+}
+
 .container, .buttons, .selects {
   gap: var(--indent-20-16);
 }
@@ -16,6 +22,13 @@
 
 .buttons, .selects {
   border: none;
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .buttons, .selects {
+    flex-direction: column;
+  }
 }
 
 .buttons {

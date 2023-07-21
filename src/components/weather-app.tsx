@@ -22,8 +22,16 @@ export function WeatherApp({ children }: WeatherAppProps) {
 
   const { height: screenHeight, width: screenWidth } = useWindowSize()
 
-  const articleHeight = screenHeight * (1/2)
-  const articleWidth = screenWidth * (1/2)
+  let articleHeight: number
+  let articleWidth: number
+
+  if (screenWidth > 768) {
+    articleHeight = screenHeight * (1/2)
+    articleWidth = screenWidth * (1/2)
+  } else {
+    articleHeight = screenHeight
+    articleWidth = screenWidth
+  }
 
 
   const years = useMemo(() => getYears(FIRST_YEAR, +lastYear), [lastYear])
@@ -38,16 +46,12 @@ export function WeatherApp({ children }: WeatherAppProps) {
       <form className={style.container}>
         <fieldset className={style.selects}>
           <Select
-            label={'Choose first year'}
-            name={'first year'}
             opts={years}
             selectedYear={yearsState.firstYear}
             yearKey={'firstYear'}
           />
 
           <Select
-            label={'Choose last year'}
-            name={'last year'}
             opts={yearsReversed}
             selectedYear={yearsState.lastYear}
             yearKey={'lastYear'}

@@ -11,6 +11,7 @@ type ItemProps = {
 
 interface TextProps {
   children: React.ReactNode,
+  id?: string;
   tag?: keyof JSX.IntrinsicElements,
   withColor?: TextColorEnum,
   withSize?: TextSizeEnum

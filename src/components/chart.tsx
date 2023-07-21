@@ -86,10 +86,6 @@ export function Chart() {
                 break
             }
 
-            console.log(`anmTime: ${anmTime}`)
-            console.log(`formTime: ${formTime}`)
-            console.log(`batchLastIndex: ${batchLastIndex}`)
-
             if (batchLastIndex < lastIndex) {
               frameRef.current = requestAnimationFrame(formChart)
             }
@@ -98,7 +94,6 @@ export function Chart() {
             formTime = formFinish - formStart
 
             if (batchLastIndex === lastIndex) {
-              console.log(`exit cond values, first: ${batchFirstIndex}, last: ${batchLastIndex}`)
               drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
               cancelAnimationFrame(frameRef.current)
             }
