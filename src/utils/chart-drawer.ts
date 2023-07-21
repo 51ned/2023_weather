@@ -1,40 +1,30 @@
 export function createChartDrawer(node: HTMLCanvasElement | null) {
-  let ctx: CanvasRenderingContext2D | null = null
-  let height = 0
-  let maxValue = 0
-  let minValue = 0
-  let scaleY = 0
-  let width = 0
-  
-
-  if (node) {
-    ctx = node.getContext('2d')
-    height = node.height
-    width = node.width
-  }
-
   return function drawChart(points: number[]) {
-    if (ctx && points.length > 0) {
-      ctx.clearRect(0, 0, width, height)
+    if (!node) return
 
-      const stepX = width / points.length
+    const ctx = node.getContext('2d')
+    if (!ctx || points.length === 0) return
 
-      minValue = Math.min(...points)
-      maxValue = Math.max(...points)
+    const height = node.height
+    const width = node.width
 
-      scaleY = height / (maxValue - minValue)
+    ctx.clearRect(0, 0, width, height)
 
-      ctx.beginPath()
-      ctx.moveTo(0, (points[0] - minValue) * scaleY)
+    const stepX = width / points.length
+    const minValue = Math.min(...points)
+    const maxValue = Math.max(...points)
+    const scaleY = height / (maxValue - minValue)
 
-      for (let i = 1; i < points.length; i++) {
-        const x = i * stepX
-        const y = (points[i] - minValue) * scaleY
+    ctx.beginPath()
+    ctx.moveTo(0, (points[0] - minValue) * scaleY)
 
-        ctx.lineTo(x, y)
-      }
+    for (let i = 1; i < points.length; i++) {
+      const x = i * stepX
+      const y = (points[i] - minValue) * scaleY
 
-      ctx.stroke()
+      ctx.lineTo(x, y)
     }
+
+    ctx.stroke()
   }
 }

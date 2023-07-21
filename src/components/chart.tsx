@@ -23,6 +23,7 @@ export function Chart() {
   
   const drawChart = createChartDrawer(canvasRef.current)
 
+
   useEffect(() => {
     const storageListner = setInterval(() => {
       if (localStorage.getItem(`${chartName}StoreFilled`) === 'true') {
@@ -50,45 +51,59 @@ export function Chart() {
           let batchFirstIndex = 0
           let batchLastIndex = DEF_BATCH_SIZE
 
-          let anmStart: number | null = null
-  
-          const processChart = (timeStamp: number) => {
-            if (!anmStart) {
-              anmStart = timeStamp
+          let anmStart: number = 0
+          let anmTime: number | null = null
+
+          let formStart: number
+          let formFinish: number
+          let formTime: number
+          
+          const formChart = (anmFinish: number) => {
+            formStart = performance.now()
+
+            if (anmStart !== 0) {
+              anmTime = anmFinish - anmStart
             }
 
-            const anmTime = (timeStamp - anmStart) / 1000
+            anmStart = anmFinish
             
-            const drawStart = performance.now()
-              drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
-            const drawFinish = performance.now()
-
-            const drawTime = drawFinish - drawStart
-            const totalTime = anmTime + drawTime
+            drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
 
             batchFirstIndex = batchLastIndex
 
             switch (true) {
-              case totalTime === 0:
+              case formTime === 0:
                 batchLastIndex = Math.min(Math.round(batchLastIndex * TARGET_TIME), lastIndex)
                 break
-              case totalTime < TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / totalTime)), lastIndex)
+              case formTime < TARGET_TIME:
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / formTime)), lastIndex)
                 break
-              case totalTime === TARGET_TIME:
+              case formTime === TARGET_TIME:
                 batchLastIndex = batchLastIndex
                 break
-              case totalTime > TARGET_TIME:
-                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / totalTime)), lastIndex)
+              case formTime > TARGET_TIME:
+                batchLastIndex = Math.min(Math.round(batchLastIndex * (TARGET_TIME / formTime)), lastIndex)
                 break
             }
-            
-            if (batchLastIndex <= lastIndex) {
-              frameRef.current = requestAnimationFrame(processChart)
+
+            console.log(`anmTime: ${anmTime}`)
+            console.log(`formTime: ${formTime}`)
+            console.log(`batchLastIndex: ${batchLastIndex}`)
+
+            if (batchLastIndex < lastIndex) {
+              frameRef.current = requestAnimationFrame(formChart)
+            }
+
+            formFinish = performance.now()
+            formTime = formFinish - formStart
+
+            if (batchLastIndex === lastIndex) {
+              console.log(`exit cond values, first: ${batchFirstIndex}, last: ${batchLastIndex}`)
+              drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
+              cancelAnimationFrame(frameRef.current)
             }
           }
-          
-          requestAnimationFrame(processChart)
+          requestAnimationFrame(formChart)
         }
         
         storeReq.onerror = (e: Event) => console.error(`${(e.target as IDBRequest).error}`)
@@ -98,10 +113,7 @@ export function Chart() {
       }
     }
   
-    return () => {
-      setToggle(null)
-      cancelAnimationFrame(frameRef.current)
-    }
+    return () => setToggle(null)
   }, [chartName, firstYear, lastYear, toggle])
 
 

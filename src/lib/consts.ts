@@ -1,4 +1,4 @@
-const DEF_BATCH_SIZE = 1
+const DEF_BATCH_SIZE = 1000
 const DEF_VER_DB = 0
 const FIRST_YEAR = 1881
 const LAST_YEAR = 2006

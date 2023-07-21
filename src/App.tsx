@@ -37,11 +37,11 @@ export default function Home() {
 
 
     const formStore = async (db: IDBDatabase) => {
-      const data = await getData<ItemProps>(`../data/${chartName}.json`) // тут узенько, мне не нравится
+      const data = await getData<ItemProps>(`/data/${chartName}.json`) // тут узенько, мне не нравится
       const tx = db.transaction(`${chartName}`, 'readwrite') 
       const store = tx.objectStore(`${chartName}`)
 
-      data.forEach(obj => store.add(obj.v)) // см. src/utils/get-indexes.ts
+      data.forEach(obj => store.add(obj.v)) // см. utils/get-indexes.ts
     
       tx.oncomplete = () => {
         db.close()
