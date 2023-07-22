@@ -1,9 +1,10 @@
-const DEF_BATCH_SIZE = 1
+const POINTS_SIZE = 46020
+
+const DEF_BATCH_SIZE = POINTS_SIZE / 10
 const DEF_VER_DB = 0
 const FIRST_YEAR = 1881
 const LAST_YEAR = 2006
 const NAME_DB = 'WeatherDB'
-const TARGET_TIME = 16.67
 
 
 export {
@@ -11,6 +12,5 @@ export {
   DEF_VER_DB,
   FIRST_YEAR,
   LAST_YEAR,
-  NAME_DB,
-  TARGET_TIME
+  NAME_DB
 }

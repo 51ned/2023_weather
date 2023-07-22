@@ -1,6 +1,6 @@
 export function createChartDrawer(node: HTMLCanvasElement | null) {
   return function drawChart(points: number[]) {
-    // console.log(points.length)
+    console.log(points.length)
     if (!node) return
 
     const ctx = node.getContext('2d')

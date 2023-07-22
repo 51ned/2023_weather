@@ -6,7 +6,7 @@ import { Canvas } from './'
 
 import { createChartDrawer, getIndexes } from '../utils'
 
-import { DEF_BATCH_SIZE, NAME_DB, TARGET_TIME } from '../lib/consts'
+import { DEF_BATCH_SIZE, NAME_DB } from '../lib/consts'
 
 
 export function Chart() {
@@ -50,33 +50,13 @@ export function Chart() {
         storeReq.onsuccess = () => {
           let batchFirstIndex = 0
           let batchLastIndex = DEF_BATCH_SIZE
-
-          let anmStart = 0
-          let anmTime: number | null = null
           
-          const formChart = (anmFinish: number) => {
-            if (anmStart !== 0) {
-              anmTime = anmFinish - anmStart
-            }
-
-            anmStart = anmFinish
-            
+          const formChart = () => {
             drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
-
-            batchFirstIndex = batchLastIndex
-
-            let multiplier
-
-            if (anmTime) {
-              anmTime < TARGET_TIME
-                ? multiplier = TARGET_TIME / anmTime * 10
-                : multiplier = anmTime / TARGET_TIME * 10
-            } else {
-              multiplier = 1
-            }
             
-            batchLastIndex = Math.min(Math.round(batchLastIndex * multiplier), lastIndex)
-
+            batchFirstIndex = batchLastIndex
+            batchLastIndex = Math.min(Math.round(batchLastIndex += DEF_BATCH_SIZE), lastIndex)
+            
             if (batchLastIndex < lastIndex) {
               frameRef.current = requestAnimationFrame(formChart)
             }
