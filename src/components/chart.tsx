@@ -1,12 +1,12 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 import { ChartContext, YearsContext } from '../stores'
 
-import { Canvas } from './'
+import { Canvas, Placeholder } from './'
 
-import { createChartDrawer, getIndexes } from '../utils'
+import { getIndexes } from '../utils'
 
-import { DEF_BATCH_SIZE, NAME_DB } from '../lib/consts'
+import { NAME_DB } from '../lib/consts'
 
 
 export function Chart() {
@@ -16,18 +16,14 @@ export function Chart() {
   const { chartState } = useContext(ChartContext)
   const { chartName } = chartState
 
-  const [toggle, setToggle] = useState<string | null>(null)
+  const [trigger, setTrigger] = useState<string | null>(null)
+  const [points, setPoints] = useState<number[] | null>()
 
-  const frameRef = useRef<number>(0)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
   
-  const drawChart = createChartDrawer(canvasRef.current)
-
-
   useEffect(() => {
     const storageListner = setInterval(() => {
       if (localStorage.getItem(`${chartName}StoreFilled`) === 'true') {
-        setToggle('str')
+        setTrigger('wake up and fight') // you in the army now
         clearInterval(storageListner)
       }
     }, 100)
@@ -35,7 +31,7 @@ export function Chart() {
 
 
   useEffect(() => {
-    if (toggle) {
+    if (trigger) {
       const reqDB = indexedDB.open(NAME_DB)
   
       reqDB.onsuccess = () => {
@@ -46,30 +42,8 @@ export function Chart() {
         const range = IDBKeyRange.bound(firstIndex, lastIndex)
         
         const storeReq = store.getAll(range)
-  
-        storeReq.onsuccess = () => {
-          let batchFirstIndex = 0
-          let batchLastIndex = DEF_BATCH_SIZE
-          
-          const formChart = () => {
-            drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
-            
-            batchFirstIndex = batchLastIndex
-            batchLastIndex = Math.min(Math.round(batchLastIndex += DEF_BATCH_SIZE), lastIndex)
-            
-            if (batchLastIndex < lastIndex) {
-              frameRef.current = requestAnimationFrame(formChart)
-            }
-
-            if (batchLastIndex === lastIndex) {
-              drawChart(storeReq.result.slice(batchFirstIndex, batchLastIndex))
-              cancelAnimationFrame(frameRef.current)
-            }
-          }
-
-          requestAnimationFrame(formChart)
-        }
         
+        storeReq.onsuccess = () => setPoints(storeReq.result)
         storeReq.onerror = (e: Event) => console.error(`${(e.target as IDBRequest).error}`)
   
         tx.oncomplete = () => reqDB.result.close()
@@ -77,9 +51,16 @@ export function Chart() {
       }
     }
   
-    return () => setToggle(null)
-  }, [chartName, firstYear, lastYear, toggle])
+    return () => {
+      setTrigger(null)
+      setPoints(null)
+    }
+  }, [chartName, firstYear, lastYear, trigger])
 
 
-  return <Canvas ref={canvasRef} />
+  return (
+    <>
+      { !points ? <Placeholder /> : <Canvas points={points} /> }
+    </>
+  )
 }

@@ -4,7 +4,7 @@
 }
 
 .header, .footer {
-  background-color: hsl(var(--h), calc(var(--s) - 10%), calc(var(--l) - 45%));
+  background-color: hsl(var(--h), calc(var(--s) - 10%), calc(var(--l) - 35%));
 }
 
 .header {

@@ -27,6 +27,6 @@ export function getIndexes(firstYear: string, lastYear: string): number[] {
 
   const firstIndex = getIndex(FIRST_DATE, firstChoosedDate) + 1
   const lastIndex = getIndex(FIRST_DATE, lastChoosedDate) + 1
-
+  
   return [firstIndex, lastIndex]
 }
