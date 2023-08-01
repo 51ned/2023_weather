@@ -5,11 +5,10 @@ import style from './canvas.module.css'
 
 type CanvasProps = {
   points: number[]
-  interval: number
 }
 
 
-export function Canvas({ points, interval }: CanvasProps) {
+export function Canvas({ points }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 console.log(points)
   useEffect(() => {
