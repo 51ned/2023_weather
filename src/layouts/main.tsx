@@ -1,4 +1,4 @@
-import { Heading, Text } from '../components'
+import { Heading, Text } from '../views'
 
 import style from './main.module.css'
 

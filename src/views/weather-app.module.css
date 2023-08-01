@@ -7,6 +7,15 @@
 @media (max-width: 768px) {
   .wrap {
     border-radius: 0;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .wrap {
+    height: calc(100vh / 4 * 3);
+    width: calc(100vw / 2);
   }
 }
 

@@ -1,2 +1,3 @@
-export * from './charts'
-export * from './years'
+export * from './button-s'
+export * from './main-s'
+export * from './select-s'

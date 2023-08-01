@@ -1,22 +1,22 @@
 {
-    "compilerOptions": {
-      "allowJs": true,
-      "baseUrl": ".",
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "jsx": "preserve",
-      "incremental": true,
-      "isolatedModules": true,
-      "lib": ["es2015", "es2016", "dom", "es2018.promise"],
-      "module": "esnext",
-      "moduleResolution": "node",
-      "noEmit": true,
-      "noImplicitAny": true,
-      "resolveJsonModule": true,
-      "skipLibCheck": true,
-      "strict": true,
-      "target": "es2021"
-    },
-    "exclude": ["node_modules"],
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
-  }
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "isolatedModules": true,
+    "lib": ["es2015", "es2016", "dom", "es2018.promise", "WebWorker"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2021"
+  },
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
+}

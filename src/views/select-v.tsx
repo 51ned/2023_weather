@@ -1,35 +1,27 @@
-import { useContext } from 'react'
-
-import { YearsContext } from '../stores/years'
+import { selectStore } from '../stores/.'
 
 import style from './select.module.css'
 
 
 interface SelectProps {
-  opts: number[],
-  selectedYear: string,
+  opts: number[]
   yearKey: 'firstYear' | 'lastYear'
 }
 
 
-export function Select({ opts, selectedYear, yearKey }: SelectProps) {
-  const { yearsState, setYearsState} = useContext(YearsContext)
-
+export function Select ({ opts, yearKey }: SelectProps) {
+  const { setYear } = selectStore
+  
   const selectHandle = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault()
-  
-    const value = e.target.value
-  
-    if (value !== selectedYear) {
-      setYearsState({...yearsState, [`${yearKey}`]: value})
-    }
+    setYear(yearKey, +e.target.value)
   }
 
   return (
     <select
       className={style.select}
       onChange={selectHandle}
-      value={selectedYear}
+      value={selectStore[yearKey]}
     >
       {opts.map((item, index) => {
         return (
