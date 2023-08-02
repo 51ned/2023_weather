@@ -15,7 +15,7 @@ self.addEventListener('install', async () => {
   chartName = urlParams.get('chartname')
   verDB = Number(urlParams.get('verdb'))
 
-  const res = await getData<ItemProps>(`/data/${chartName}.json`)
+  const res = await getData(`/data/${chartName}.json`)
 
   data = res.map(item => item.v)
   
