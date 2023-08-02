@@ -10,7 +10,7 @@ type CanvasProps = {
 
 export function Canvas({ points }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-console.log(points)
+
   useEffect(() => {
     const canvas = canvasRef.current
 

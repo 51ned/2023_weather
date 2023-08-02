@@ -13,10 +13,9 @@ export default function Home() {
   const dataChannel = new BroadcastChannel('dataChannel')
   const funcChannel = new BroadcastChannel('funcChannel')
 
-  dataChannel.onmessage = (e) => setData(e.data)
-  funcChannel.onmessage = (e) => localStorage.setItem(e.data, 'true')
+  dataChannel.onmessage = e => setData(e.data)
+  funcChannel.onmessage = e => localStorage.setItem(e.data, 'true')
 
-  // const interval = points && Math.round(points.length / 100)
 
   return (
     <MainLayout>
