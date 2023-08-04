@@ -11,8 +11,8 @@ import App from './App'
 import { DEF_VER_DB } from './lib/consts'
 
 
-const mainWW = new Worker('/main-ww.js')
-const subSW = navigator.serviceWorker.register('/sub-sw.js')
+const mainWW = new Worker('/workers/main-ww.js')
+const subSW = navigator.serviceWorker.register('/workers/sub-sw.js')
 
 let verDB = +(localStorage.getItem('verDB') || DEF_VER_DB)
 
