@@ -23,6 +23,3 @@ async function createStore(chartName, chartData, verDB) {
     tx.onerror = e => console.error(e.target.error)
   }
 }
-
-
-export{}
