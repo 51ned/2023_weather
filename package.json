@@ -12,6 +12,7 @@
         "deploy": "gh-pages -d build"
     },
     "dependencies": {
+        "@types/sharedworker": "^0.0.101",
         "classnames": "^2.3.2",
         "mobx": "^6.10.0",
         "mobx-react-lite": "^4.0.3",

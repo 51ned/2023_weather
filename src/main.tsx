@@ -11,33 +11,53 @@ import App from './App'
 import { DEF_VER_DB } from './lib/consts'
 
 
-let verDB = +(localStorage.getItem('verDB') || DEF_VER_DB)
+const mainWW = new Worker('/src/workers/main-ww.ts')
+const subSW = navigator.serviceWorker.register('/src/workers/sub-sw.ts')
 
+let verDB = +(localStorage.getItem('verDB') || DEF_VER_DB)
 
 autorun(() => {
   const chartName = buttonStore.chartName
-  const chartData = mainStore.chartData
+  const { chartData, setData } = mainStore
 
   if (!localStorage.getItem(`${chartName}StoreExist`)) {
     if(!chartData[chartName]) {
-      const queryParams = new URLSearchParams({ chartname: chartName, verdb: String(verDB) })
-      const swURL = `/main-sw.js?${queryParams}`
-
-      navigator.serviceWorker.register(swURL)
       localStorage.setItem('currVerDB', String(++verDB))
+      mainWW.postMessage({chartName: chartName, type: 'initReq'})
     }
   }
 
   if (localStorage.getItem(`${chartName}StoreExist`)) {
     if(!chartData[chartName]) {
-      const extractChannel = new BroadcastChannel('extractChannel')
-      extractChannel.postMessage(chartName)
+      mainWW.postMessage({type: 'extractReq', chartName: chartName})
+    }
+  }
+
+  mainWW.onmessage = e => {
+    if (e.data.type === 'initRes') {
+      localStorage.setItem(`${chartName}StoreExist`, 'true')
+      setData(e.data.chartData)
+
+      subSW.then(reg => {
+        if (reg.active) {
+          reg.active.postMessage({
+            chartData: e.data.chartData, 
+            chartName: chartName,
+            verDB: verDB
+          })
+        }
+      })
+    }
+
+    if (e.data.type === 'extractRes') {
+      setData(e.data.chartData)
     }
   }
 })
 
 
 const ObservedApp = observer(App)
+
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <ObservedApp />

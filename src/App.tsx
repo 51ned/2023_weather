@@ -8,14 +8,7 @@ import '../public/styles/index.css'
 
 
 export default function Home() {
-  const {setData, points } = mainStore
-
-  const dataChannel = new BroadcastChannel('dataChannel')
-  const funcChannel = new BroadcastChannel('funcChannel')
-
-  dataChannel.onmessage = e => setData(e.data)
-  funcChannel.onmessage = e => localStorage.setItem(e.data, 'true')
-
+  const { points } = mainStore
 
   return (
     <MainLayout>

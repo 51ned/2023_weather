@@ -7,7 +7,7 @@
     "jsx": "preserve",
     "incremental": true,
     "isolatedModules": true,
-    "lib": ["es2015", "es2016", "dom", "es2018.promise", "WebWorker"],
+    "lib": ["es2022", "dom", "es2018.promise", "WebWorker"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2021"
+    "target": "es2022"
   },
   "exclude": ["node_modules"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]

@@ -13,7 +13,7 @@ export function smoothData(data: number[], winSize: number) {
 
     if (right - left + 1 > winSize) {
       sum -= data[left]
-      left++
+      left += winSize
     }
 
     if (right - left + 1 === winSize) {
