@@ -23,3 +23,6 @@ async function createStore(chartName: string, chartData: number[], verDB: number
     tx.onerror = (e: Event) => console.error((e.target as IDBTransaction).error)
   }
 }
+
+
+export{}
