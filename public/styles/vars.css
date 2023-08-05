@@ -12,9 +12,21 @@
   --indent-12-8: calc(var(--base) * 3);
   --indent-8-4: calc(var(--base) * 2);
 
-  --h: 239;
-  --s: 29%;
-  --l: 54%;
+  --h-blue: 239;
+  --s-blue: 29%;
+  --l-blue: 54%;
+  --blue: hsl(var(--h-blue), var(--s-blue), var(--l-blue));
+
+  --h-green: 99;
+  --s-green: 30%;
+  --l-green: 68%;
+  
+  --green: hsl(var(--h-green), var(--s-green), var(--l-green));
+  --green-light: hsl(
+    var(--h-green),
+    calc(var(--s-green) - 10%),
+    calc(var(--l-green) + 20%)
+  );
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,6 @@
-import { selectStore } from '../stores/.'
+import { selectStore } from '../stores'
 
-import { Button, Select} from './'
+import { Button, Range, Select } from './'
 
 import style from './weather-app.module.css'
 
@@ -11,21 +11,25 @@ export function WeatherApp({ children }: { children: React.ReactNode }) {
   return (
     <article className={style.wrap}>
       <form className={style.container}>
-        <fieldset className={style.selects}>
-          <Select
-            opts={years}
-            yearKey={'firstYear'}
-          />
+        <fieldset className={style.top}>
+          <div className={style.selects}>
+            <Select
+              opts={years}
+              yearKey={'firstYear'}
+            />
 
-          <Select
-            opts={yearsReversed}
-            yearKey={'lastYear'}
-          />
+            <Select
+              opts={yearsReversed}
+              yearKey={'lastYear'}
+            />
+          </div>
+
+          <Range />
         </fieldset>
-      
+
         { children }
 
-        <fieldset className={style.buttons}>
+        <fieldset className={style.bottom}>
           <Button value='temperature'>
             Temperature
           </Button>

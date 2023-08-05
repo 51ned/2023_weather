@@ -1,8 +1,15 @@
 .select {
-  background-color: hsl(var(--h), calc(var(--s) + 15%), calc(var(--l) + 35%));
+  appearance: none;
+  background-color: var(--green-light);
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="10" viewBox="0 0 20 10"><polygon points="1.415,1.415 8.586,8.586 10,10 11.414,8.586 18.585,1.415 17.171,0 10,7.172 2.829,0"/></svg>');
+  background-position: right var(--indent-16-12) center;
+  background-repeat: no-repeat;
   border: none;
   border-radius: var(--indent-12-8);
   font-size: var(--regular-font-size);
+  outline: none;
   padding: var(--indent-16-12);
   width: 100%;
 }
+
+.active {}

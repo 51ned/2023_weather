@@ -1,4 +1,4 @@
-import { selectStore } from '../stores/.'
+import { selectStore } from '../stores'
 
 import style from './select.module.css'
 
@@ -11,7 +11,7 @@ interface SelectProps {
 
 export function Select ({ opts, yearKey }: SelectProps) {
   const { setYear } = selectStore
-  
+
   const selectHandle = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault()
     setYear(yearKey, +e.target.value)

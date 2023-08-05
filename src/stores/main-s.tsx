@@ -3,6 +3,7 @@ import { autorun, makeAutoObservable } from 'mobx'
 import { buttonStore } from './button-s'
 import { selectStore } from './select-s'
 
+import { smoothData } from '../utils/smooth-data'
 
 type ChartData = {
   [key: string]: number[] | null
@@ -24,9 +25,13 @@ export const mainStore = makeAutoObservable({
   },
 
   get points() {
-    return this.chartData[this.chartName]?.slice(
+    const rawPoints = this.chartData[this.chartName]?.slice(
       ...selectStore.indexes
     )
+
+    if (rawPoints) {
+      return smoothData(rawPoints)
+    }
   }
 })
 

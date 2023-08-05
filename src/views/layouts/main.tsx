@@ -1,6 +1,7 @@
-import { Heading, Text } from '../views'
+import { Heading, Text } from '..'
 
 import style from './main.module.css'
+
 
 export function MainLayout({ children }: React.PropsWithChildren<{}>) {
   return (

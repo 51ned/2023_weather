@@ -1,12 +1,16 @@
+const DAYS_IN_YEAR = 365
 const DEF_VER_DB = 1
 const FIRST_YEAR = 1881
 const LAST_YEAR = 2006
 const NAME_DB = 'WeatherDB'
+const POINTS_NUM = 46020
 
 
 export {
+  DAYS_IN_YEAR,
   DEF_VER_DB,
   FIRST_YEAR,
   LAST_YEAR,
-  NAME_DB
+  NAME_DB,
+  POINTS_NUM
 }

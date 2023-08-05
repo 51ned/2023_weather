@@ -1,10 +1,6 @@
-.frame {
-  flex: 1;
-}
-
 .canvas {
-  background-color: hsl(var(--h), calc(var(--s) + 15%), calc(var(--l) + 35%));
+  background-color: var(--green-light);
   border-radius: var(--indent-12-8);
-  padding: var(--indent-12-8);
+  padding: var(--indent-16-12);
   width: 100%;
 }

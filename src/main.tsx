@@ -10,6 +10,8 @@ import App from './App'
 
 import { DEF_VER_DB } from './lib/consts'
 
+import '../public/styles/index.css'
+
 
 const mainWW = new Worker('/workers/main-ww.js')
 const subSW = navigator.serviceWorker.register('/workers/sub-sw.js')

@@ -1,0 +1,13 @@
+.header, .main, footer {
+  display: grid;
+  place-items: center;
+}
+
+.header, .footer {
+  background-color: hsl(
+    var(--h-blue),
+    calc(var(--s-blue) - 10%),
+    calc(var(--l-blue) - 35%)
+  );
+  padding: var(--indent-24-16) 0;
+}

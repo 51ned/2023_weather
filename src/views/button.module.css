@@ -1,10 +1,15 @@
 .button {
-  background-color: hsl(var(--h), calc(var(--s) + 15%), calc(var(--l) + 35%));
+  background-color: rgba(0, 0, 0, .1);
   border: none;
   border-radius: var(--indent-12-8);
   cursor: pointer;
   font-size: var(--regular-font-size);
   outline: none;
   padding: var(--indent-16-12);
+  transition: background-color .2s;
   width: 100%;
+}
+
+.active {
+  background-color: var(--green-light);
 }

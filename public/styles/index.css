@@ -9,7 +9,11 @@
 }
 
 body {
-  background-color: hsl(var(--h), calc(var(--s) - 10%), calc(var(--l) - 20%));
+  background-color: hsl(
+    var(--h-blue), 
+    calc(var(--s-blue) - 10%), 
+    calc(var(--l-blue) - 20%)
+  );
 }
 
 #root {
