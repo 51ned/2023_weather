@@ -18,7 +18,7 @@ export function Canvas({ points }: CanvasProps) {
     const canvas = canvasRef.current
 
     if (canvas && points) {
-      canvas.height = window.innerHeight - 124 // Нельзя взять и обойтись без костыля. :(
+      canvas.height = window.innerHeight - 144 // Нельзя взять и обойтись без костыля. :(
       canvas.width = window.innerWidth
 
       const ctx = canvas.getContext('2d')
