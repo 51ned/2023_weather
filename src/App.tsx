@@ -2,16 +2,16 @@ import { MainLayout } from './views/layouts/main'
 
 import { mainStore } from './stores'
 
-import { Canvas, WeatherApp } from './views'
+import { Canvas, Placeholder, WeatherApp } from './views'
 
 
 export default function Home() {
-  const points = mainStore.points ?? []
+  const points = mainStore.points
   
   return (
     <MainLayout>
       <WeatherApp>
-        <Canvas points={points} />
+        { !points ? <Placeholder /> : <Canvas points={points} /> }
       </WeatherApp>
     </MainLayout>
   )
